@@ -94,107 +94,121 @@ const StatblockLayoutApp = () => {
   );
 
   // Component for rendering individual statblock
-  const StatblockDisplay = ({ creature, onRemove }) => (
-    <Card className="w-full max-w-sm bg-stone-100 p-4 m-2 relative">
-      <Button
-        variant="ghost"
-        size="icon"
-        className="absolute top-2 right-2 print:hidden"
-        onClick={onRemove}
+  const StatblockDisplay = ({ creature, onRemove }) => {
+    // Calculate if the content is large based on the number of traits and actions
+    const isLargeContent =
+      (creature.traits?.length || 0) + (creature.actions?.length || 0) > 6 ||
+      (creature.actions || []).some((action) => action.value.length > 200);
+
+    return (
+      <Card
+        className={`
+        bg-stone-100 p-2 m-1 relative h-fit 
+        break-inside-avoid-page print:break-inside-avoid
+        ${isLargeContent ? "col-span-2" : ""}
+        ${isLargeContent ? "md:max-w-2xl" : "md:max-w-sm"}
+      `}
       >
-        <X className="h-4 w-4" />
-      </Button>
-      <CardContent>
-        <h2 className="text-xl font-bold mb-2">{creature.name}</h2>
-        <p className="text-sm italic mb-2">
-          {creature.size} {creature.type}, {creature.alignment}
-        </p>
-
-        <div className="border-t border-b border-gray-300 py-2 my-2">
-          <p>
-            <strong>Rüstungsklasse</strong> {creature["armor-class"]?.value}{" "}
-            {creature["armor-class"]?.info &&
-              `(${creature["armor-class"].info})`}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="absolute top-1 right-1 print:hidden"
+          onClick={onRemove}
+        >
+          <X className="h-3 w-3" />
+        </Button>
+        <CardContent className="p-0">
+          <h2 className="text-base font-bold mb-1">{creature.name}</h2>
+          <p className="text-xs italic mb-1">
+            {creature.size} {creature.type}, {creature.alignment}
           </p>
-          <p>
-            <strong>Trefferpunkte</strong> {creature["hit-points"]?.value}{" "}
-            {creature["hit-points"]?.formula &&
-              `(${creature["hit-points"].formula})`}
-          </p>
-          <p>
-            <strong>Bewegungsrate</strong>{" "}
-            {Object.entries(creature.speeds || {})
-              .map(([type, speed]) => `${speed}`)
-              .join(", ")}
-          </p>
-        </div>
 
-        <div className="grid grid-cols-6 gap-2 text-center my-2">
-          {creature.attributes &&
-            creature.attributes.map((attr) => (
-              <div key={attr.class}>
-                <div className="text-xs uppercase">{attr.class}</div>
-                <div className="font-bold">{attr.value}</div>
-                <div className="text-sm">{attr.modifier}</div>
-              </div>
-            ))}
-        </div>
-
-        <div className="my-2 space-y-1">
-          {creature["damage-resistances"]?.length > 0 && (
+          <div className="border-t border-b border-gray-300 py-1 my-1 text-xs">
             <p>
-              <strong>Resistenzen</strong>{" "}
-              {creature["damage-resistances"].join(", ")}
+              <strong>Rüstungsklasse</strong> {creature["armor-class"]?.value}{" "}
+              {creature["armor-class"]?.info &&
+                `(${creature["armor-class"].info})`}
             </p>
-          )}
-          {creature["damage-vulnerabilitys"]?.length > 0 && (
             <p>
-              <strong>Anfälligkeiten</strong>{" "}
-              {creature["damage-vulnerabilitys"].join(", ")}
+              <strong>Trefferpunkte</strong> {creature["hit-points"]?.value}{" "}
+              {creature["hit-points"]?.formula &&
+                `(${creature["hit-points"].formula})`}
             </p>
-          )}
-          {creature.senses?.length > 0 && (
             <p>
-              <strong>Sinne</strong> {creature.senses.join(", ")}
+              <strong>Bewegungsrate</strong>{" "}
+              {Object.entries(creature.speeds || {})
+                .map(([type, speed]) => `${speed}`)
+                .join(", ")}
             </p>
-          )}
-          {creature.languages?.length > 0 && (
-            <p>
-              <strong>Sprachen</strong> {creature.languages.join(", ")}
-            </p>
-          )}
-          <p>
-            <strong>Herausforderungsgrad</strong> {creature.challenge} (
-            {creature.xp} EP)
-          </p>
-        </div>
-
-        {creature.traits && creature.traits.length > 0 && (
-          <div className="border-t border-gray-300 pt-2">
-            <h3 className="font-bold mb-2">Eigenschaften</h3>
-            {creature.traits.map((trait, index) => (
-              <div key={index} className="mb-2">
-                <p className="font-bold">{trait.name}</p>
-                <p className="text-sm">{trait.value}</p>
-              </div>
-            ))}
           </div>
-        )}
 
-        {creature.actions && creature.actions.length > 0 && (
-          <div className="border-t border-gray-300 pt-2">
-            <h3 className="font-bold mb-2">Aktionen</h3>
-            {creature.actions.map((action, index) => (
-              <div key={index} className="mb-2">
-                <p className="font-bold">{action.name}</p>
-                <p className="text-sm">{action.value}</p>
-              </div>
-            ))}
+          <div className="grid grid-cols-6 gap-1 text-center my-1">
+            {creature.attributes &&
+              creature.attributes.map((attr) => (
+                <div key={attr.class} className="text-xs">
+                  <div className="text-2xs uppercase">{attr.class}</div>
+                  <div className="font-bold">{attr.value}</div>
+                  <div>{attr.modifier}</div>
+                </div>
+              ))}
           </div>
-        )}
-      </CardContent>
-    </Card>
-  );
+
+          <div className="my-1 space-y-0.5 text-xs">
+            {creature["damage-resistances"]?.length > 0 && (
+              <p>
+                <strong>Resistenzen</strong>{" "}
+                {creature["damage-resistances"].join(", ")}
+              </p>
+            )}
+            {creature["damage-vulnerabilitys"]?.length > 0 && (
+              <p>
+                <strong>Anfälligkeiten</strong>{" "}
+                {creature["damage-vulnerabilitys"].join(", ")}
+              </p>
+            )}
+            {creature.senses?.length > 0 && (
+              <p>
+                <strong>Sinne</strong> {creature.senses.join(", ")}
+              </p>
+            )}
+            {creature.languages?.length > 0 && (
+              <p>
+                <strong>Sprachen</strong> {creature.languages.join(", ")}
+              </p>
+            )}
+            <p>
+              <strong>Herausforderungsgrad</strong> {creature.challenge} (
+              {creature.xp} EP)
+            </p>
+          </div>
+
+          {creature.traits && creature.traits.length > 0 && (
+            <div className="border-t border-gray-300 pt-1">
+              <h3 className="font-bold text-xs mb-1">Eigenschaften</h3>
+              {creature.traits.map((trait, index) => (
+                <div key={index} className="mb-1 text-xs">
+                  <p className="font-bold">{trait.name}</p>
+                  <p className="whitespace-pre-wrap">{trait.value}</p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {creature.actions && creature.actions.length > 0 && (
+            <div className="border-t border-gray-300 pt-1">
+              <h3 className="font-bold text-xs mb-1">Aktionen</h3>
+              {creature.actions.map((action, index) => (
+                <div key={index} className="mb-1 text-xs">
+                  <p className="font-bold">{action.name}</p>
+                  <p className="whitespace-pre-wrap">{action.value}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    );
+  };
 
   const MonsterSelector = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -285,10 +299,11 @@ const StatblockLayoutApp = () => {
 
       <div
         className={`
+        grid gap-4 print:m-4
         ${
           layout === "grid"
-            ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-            : "flex flex-col items-center"
+            ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 print:grid-cols-2 auto-rows-min"
+            : "grid-cols-1"
         }
       `}
       >
