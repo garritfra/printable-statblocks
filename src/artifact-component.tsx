@@ -11,28 +11,14 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import yaml from "js-yaml";
 
 const StatblockLayoutApp = () => {
   const [statblocks, setStatblocks] = useState([]);
   const [layout, setLayout] = useState("grid");
   const [monsters, setMonsters] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-
-  // Extract monster name from URL
-  const getMonsterNameFromUrl = (url) => {
-    const parts = url.split("/");
-    return parts[parts.length - 2];
-  };
-
-  // Format monster name for display
-  const formatMonsterName = (name) => {
-    return name
-      .split("-")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ");
-  };
 
   // Fetch monster list on component mount
   useEffect(() => {
@@ -43,7 +29,6 @@ const StatblockLayoutApp = () => {
         );
         const data = await response.json();
         if (data.result && data.result.objects) {
-          // Create an array of monster objects with names and URLs
           const monsterList = data.result.objects.map((url) => {
             const name = url.split("/monster/")[1].split("/")[0];
             const displayName = name
@@ -52,7 +37,7 @@ const StatblockLayoutApp = () => {
               .join(" ");
             return {
               name: displayName,
-              url: url,
+              url: `https://openrpg.de/srd/5e/de/api/monster/${name}/fantasystatblocks.yaml`,
             };
           });
           setMonsters(monsterList);
@@ -66,13 +51,30 @@ const StatblockLayoutApp = () => {
     fetchMonsters();
   }, []);
 
+  // Parse YAML statblock
+  const parseStatblock = (yamlContent) => {
+    try {
+      // Extract the YAML content between ```statblock and ``` markers
+      const match = yamlContent.match(/```statblock\n([\s\S]*?)```/);
+      if (!match) {
+        throw new Error("Could not find statblock content");
+      }
+      const cleanYaml = match[1].trim();
+      return yaml.load(cleanYaml);
+    } catch (error) {
+      console.error("Error parsing YAML:", error);
+      return null;
+    }
+  };
+
   // Fetch individual monster data
   const fetchMonsterData = async (monsterUrl) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`${monsterUrl}/json`);
-      const data = await response.json();
+      const response = await fetch(monsterUrl);
+      const textData = await response.text();
+      const data = parseStatblock(textData);
       if (data) {
         setStatblocks((prev) => [...prev, data]);
       }
@@ -88,27 +90,24 @@ const StatblockLayoutApp = () => {
     setStatblocks((prev) => prev.filter((_, i) => i !== index));
   };
 
-  // Filter monsters based on search term
-  const filteredMonsters = monsters.filter((monster) =>
-    monster.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
   // Component for rendering individual statblock
   const StatblockDisplay = ({ creature, onRemove }) => {
-    // Calculate if the content is large based on the number of traits and actions
-    const isLargeContent =
-      (creature.traits?.length || 0) + (creature.actions?.length || 0) > 6 ||
-      (creature.actions || []).some((action) => action.value.length > 200);
+    // Convert stats array to attributes array with modifiers
+    const getModifier = (stat) => {
+      const mod = Math.floor((stat - 10) / 2);
+      return mod >= 0 ? `+${mod}` : mod.toString();
+    };
+
+    const attributes = ["STR", "DEX", "CON", "INT", "WIS", "CHA"].map(
+      (attr, index) => ({
+        class: attr,
+        value: creature.stats[index],
+        modifier: getModifier(creature.stats[index]),
+      })
+    );
 
     return (
-      <Card
-        className={`
-        bg-stone-100 p-2 m-1 relative h-fit 
-        break-inside-avoid-page print:break-inside-avoid
-        ${isLargeContent ? "col-span-2" : ""}
-        ${isLargeContent ? "md:max-w-2xl" : "md:max-w-sm"}
-      `}
-      >
+      <Card className="bg-stone-100 p-2 m-1 relative h-fit break-inside-avoid-page print:break-inside-avoid">
         <Button
           variant="ghost"
           size="icon"
@@ -125,82 +124,49 @@ const StatblockLayoutApp = () => {
 
           <div className="border-t border-b border-gray-300 py-1 my-1 text-xs">
             <p>
-              <strong>Rüstungsklasse</strong> {creature["armor-class"]?.value}{" "}
-              {creature["armor-class"]?.info &&
-                `(${creature["armor-class"].info})`}
+              <strong>Rüstungsklasse</strong> {creature.ac}
             </p>
             <p>
-              <strong>Trefferpunkte</strong> {creature["hit-points"]?.value}{" "}
-              {creature["hit-points"]?.formula &&
-                `(${creature["hit-points"].formula})`}
+              <strong>Trefferpunkte</strong> {creature.hp}
             </p>
             <p>
-              <strong>Bewegungsrate</strong>{" "}
-              {Object.entries(creature.speeds || {})
-                .map(([type, speed]) => `${speed}`)
-                .join(", ")}
+              <strong>Bewegungsrate</strong> {creature.speed}
             </p>
           </div>
 
           <div className="grid grid-cols-6 gap-1 text-center my-1">
-            {creature.attributes &&
-              creature.attributes.map((attr) => (
-                <div key={attr.class} className="text-xs">
-                  <div className="text-2xs uppercase">{attr.class}</div>
-                  <div className="font-bold">{attr.value}</div>
-                  <div>{attr.modifier}</div>
-                </div>
-              ))}
+            {attributes.map((attr) => (
+              <div key={attr.class} className="text-xs">
+                <div className="text-2xs uppercase">{attr.class}</div>
+                <div className="font-bold">{attr.value}</div>
+                <div>{attr.modifier}</div>
+              </div>
+            ))}
           </div>
 
           <div className="my-1 space-y-0.5 text-xs">
-            {creature["damage-resistances"]?.length > 0 && (
+            {creature.senses && (
               <p>
-                <strong>Resistenzen</strong>{" "}
-                {creature["damage-resistances"].join(", ")}
+                <strong>Sinne</strong> {creature.senses}
               </p>
             )}
-            {creature["damage-vulnerabilitys"]?.length > 0 && (
+            {creature.languages && (
               <p>
-                <strong>Anfälligkeiten</strong>{" "}
-                {creature["damage-vulnerabilitys"].join(", ")}
-              </p>
-            )}
-            {creature.senses?.length > 0 && (
-              <p>
-                <strong>Sinne</strong> {creature.senses.join(", ")}
-              </p>
-            )}
-            {creature.languages?.length > 0 && (
-              <p>
-                <strong>Sprachen</strong> {creature.languages.join(", ")}
+                <strong>Sprachen</strong> {creature.languages}
               </p>
             )}
             <p>
-              <strong>Herausforderungsgrad</strong> {creature.challenge} (
-              {creature.xp} EP)
+              <strong>Herausforderungsgrad</strong> {creature.cr}
             </p>
           </div>
 
-          {creature.traits && creature.traits.length > 0 && (
-            <div className="border-t border-gray-300 pt-1">
-              <h3 className="font-bold text-xs mb-1">Eigenschaften</h3>
-              {creature.traits.map((trait, index) => (
-                <div key={index} className="mb-1 text-xs">
-                  <p className="font-bold">{trait.name}</p>
-                  <p className="whitespace-pre-wrap">{trait.value}</p>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {creature.actions && creature.actions.length > 0 && (
+          {creature.actions && (
             <div className="border-t border-gray-300 pt-1">
               <h3 className="font-bold text-xs mb-1">Aktionen</h3>
               {creature.actions.map((action, index) => (
                 <div key={index} className="mb-1 text-xs">
                   <p className="font-bold">{action.name}</p>
-                  <p className="whitespace-pre-wrap">{action.value}</p>
+                  <p className="whitespace-pre-wrap">{action.desc}</p>
                 </div>
               ))}
             </div>
