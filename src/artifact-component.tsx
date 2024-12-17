@@ -14,9 +14,18 @@ import WelcomeDialog from "@/components/WelcomeDialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import yaml from "js-yaml";
 
+const STORAGE_KEY = "statblocks";
+const LAYOUT_KEY = "layout";
+
 const StatblockLayoutApp = () => {
-  const [statblocks, setStatblocks] = useState([]);
-  const [layout, setLayout] = useState("grid");
+  const [statblocks, setStatblocks] = useState(() => {
+    const savedStatblocks = localStorage.getItem(STORAGE_KEY);
+    return savedStatblocks ? JSON.parse(savedStatblocks) : [];
+  });
+  const [layout, setLayout] = useState(() => {
+    const savedLayout = localStorage.getItem(LAYOUT_KEY);
+    return savedLayout || "grid";
+  });
   const [monsters, setMonsters] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -80,6 +89,16 @@ const StatblockLayoutApp = () => {
       return null;
     }
   };
+
+  // Save statblocks to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(statblocks));
+  }, [statblocks]);
+
+  // Save layout to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem(LAYOUT_KEY, layout);
+  }, [layout]);
 
   // Fetch individual monster data
   const fetchMonsterData = async (monsterUrl) => {
