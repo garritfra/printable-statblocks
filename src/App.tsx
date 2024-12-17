@@ -47,22 +47,11 @@ const StatblockLayoutApp = () => {
         );
         const data = await response.json();
         if (data.result && data.result.objects) {
-          const monsterList = data.result.objects.map((url: string) => {
+          const monsterList = data.result.objects.map((url) => {
             const name = url.split("/monster/")[1].split("/")[0];
             const displayName = name
               .split("-")
-              .map((word: string) => {
-                // Ersetze deutsche Umlaute
-                word = word.replace(/ae/g, "ä");
-                word = word.replace(/oe/g, "ö");
-                word = word.replace(/ue/g, "ü");
-                word = word.replace(/Ae/g, "Ä");
-                word = word.replace(/Oe/g, "Ö");
-                word = word.replace(/Ue/g, "Ü");
-
-                // Erster Buchstabe groß, Rest klein
-                return word.charAt(0).toUpperCase() + word.slice(1);
-              })
+              .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
               .join(" ");
             return {
               name: displayName,
@@ -80,7 +69,7 @@ const StatblockLayoutApp = () => {
     fetchMonsters();
   }, []);
 
-  const parseStatblock = (yamlContent: string) => {
+  const parseStatblock = (yamlContent) => {
     try {
       const match = yamlContent.match(/```statblock\n([\s\S]*?)```/);
       if (!match) {
@@ -98,7 +87,7 @@ const StatblockLayoutApp = () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(statblocks));
   }, [statblocks]);
 
-  const fetchMonsterData = async (monsterUrl: string | URL | Request) => {
+  const fetchMonsterData = async (monsterUrl) => {
     setLoading(true);
     setError(null);
     try {
@@ -106,7 +95,7 @@ const StatblockLayoutApp = () => {
       const textData = await response.text();
       const data = parseStatblock(textData);
       if (data) {
-        setStatblocks((prev: any) => [...prev, data]);
+        setStatblocks((prev) => [...prev, data]);
       }
     } catch (error) {
       setError("Failed to fetch monster data");
@@ -115,14 +104,12 @@ const StatblockLayoutApp = () => {
     setLoading(false);
   };
 
-  const removeStatblock = (index: any) => {
-    setStatblocks((prev: any[]) =>
-      prev.filter((_: any, i: any) => i !== index)
-    );
+  const removeStatblock = (index) => {
+    setStatblocks((prev) => prev.filter((_, i) => i !== index));
   };
 
   const StatblockDisplay = ({ creature, onRemove }) => {
-    const getModifier = (stat: number) => {
+    const getModifier = (stat) => {
       const mod = Math.floor((stat - 10) / 2);
       return mod >= 0 ? `+${mod}` : mod.toString();
     };
@@ -192,14 +179,12 @@ const StatblockLayoutApp = () => {
           {creature.actions && (
             <div className="border-t border-gray-300 pt-1">
               <h3 className="font-bold text-xs mb-1">Aktionen</h3>
-              {creature.actions.map(
-                (action: unknown, index: React.Key | null | undefined) => (
-                  <div key={index} className="mb-1 text-xs">
-                    <p className="font-bold">{action.name}</p>
-                    <p className="whitespace-pre-wrap">{action.desc}</p>
-                  </div>
-                )
-              )}
+              {creature.actions.map((action, index) => (
+                <div key={index} className="mb-1 text-xs">
+                  <p className="font-bold">{action.name}</p>
+                  <p className="whitespace-pre-wrap">{action.desc}</p>
+                </div>
+              ))}
             </div>
           )}
         </CardContent>
@@ -222,14 +207,14 @@ const StatblockLayoutApp = () => {
       monster.name.toLowerCase().includes(dialogSearchTerm.toLowerCase())
     );
 
-    const handleMonsterSelect = async (monsterUrl: any) => {
+    const handleMonsterSelect = async (monsterUrl) => {
       await fetchMonsterData(monsterUrl);
       setIsOpen(false);
       setDialogSearchTerm("");
       setSelectedIndex(0);
     };
 
-    const handleKeyDown = (e: { key: any; preventDefault: () => void }) => {
+    const handleKeyDown = (e) => {
       if (!isOpen) return;
 
       switch (e.key) {
@@ -346,16 +331,14 @@ const StatblockLayoutApp = () => {
       </div>
 
       <div className="columns-1 md:columns-2 lg:columns-3 print:columns-2 gap-4 space-y-4 [column-fill:_balance]">
-        {statblocks.map(
-          (statblock: any, index: React.Key | null | undefined) => (
-            <div key={index} className="break-inside-avoid-page">
-              <StatblockDisplay
-                creature={statblock}
-                onRemove={() => removeStatblock(index)}
-              />
-            </div>
-          )
-        )}
+        {statblocks.map((statblock, index) => (
+          <div key={index} className="break-inside-avoid-page">
+            <StatblockDisplay
+              creature={statblock}
+              onRemove={() => removeStatblock(index)}
+            />
+          </div>
+        ))}
       </div>
     </div>
   );
