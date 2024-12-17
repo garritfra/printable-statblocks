@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, Printer, Search, X } from "lucide-react";
@@ -15,16 +15,11 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import yaml from "js-yaml";
 
 const STORAGE_KEY = "statblocks";
-const LAYOUT_KEY = "layout";
 
 const StatblockLayoutApp = () => {
   const [statblocks, setStatblocks] = useState(() => {
     const savedStatblocks = localStorage.getItem(STORAGE_KEY);
     return savedStatblocks ? JSON.parse(savedStatblocks) : [];
-  });
-  const [layout, setLayout] = useState(() => {
-    const savedLayout = localStorage.getItem(LAYOUT_KEY);
-    return savedLayout || "grid";
   });
   const [monsters, setMonsters] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -43,7 +38,6 @@ const StatblockLayoutApp = () => {
     setShowWelcome(false);
   };
 
-  // Fetch monster list on component mount
   useEffect(() => {
     const fetchMonsters = async () => {
       try {
@@ -74,10 +68,8 @@ const StatblockLayoutApp = () => {
     fetchMonsters();
   }, []);
 
-  // Parse YAML statblock
   const parseStatblock = (yamlContent) => {
     try {
-      // Extract the YAML content between ```statblock and ``` markers
       const match = yamlContent.match(/```statblock\n([\s\S]*?)```/);
       if (!match) {
         throw new Error("Could not find statblock content");
@@ -90,17 +82,10 @@ const StatblockLayoutApp = () => {
     }
   };
 
-  // Save statblocks to localStorage whenever they change
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(statblocks));
   }, [statblocks]);
 
-  // Save layout to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem(LAYOUT_KEY, layout);
-  }, [layout]);
-
-  // Fetch individual monster data
   const fetchMonsterData = async (monsterUrl) => {
     setLoading(true);
     setError(null);
@@ -118,14 +103,11 @@ const StatblockLayoutApp = () => {
     setLoading(false);
   };
 
-  // Remove a statblock
   const removeStatblock = (index) => {
     setStatblocks((prev) => prev.filter((_, i) => i !== index));
   };
 
-  // Component for rendering individual statblock
   const StatblockDisplay = ({ creature, onRemove }) => {
-    // Convert stats array to attributes array with modifiers
     const getModifier = (stat) => {
       const mod = Math.floor((stat - 10) / 2);
       return mod >= 0 ? `+${mod}` : mod.toString();
@@ -140,7 +122,7 @@ const StatblockLayoutApp = () => {
     );
 
     return (
-      <Card className="bg-stone-100 p-2 m-1 relative h-fit break-inside-avoid-page print:break-inside-avoid">
+      <Card className="bg-stone-100 p-2 relative break-inside-avoid print:break-inside-avoid">
         <Button
           variant="ghost"
           size="icon"
@@ -213,7 +195,6 @@ const StatblockLayoutApp = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [dialogSearchTerm, setDialogSearchTerm] = useState("");
 
-    // Filter monsters based on search term
     const filteredMonsterList = monsters.filter((monster) =>
       monster.name.toLowerCase().includes(dialogSearchTerm.toLowerCase())
     );
@@ -271,12 +252,6 @@ const StatblockLayoutApp = () => {
     );
   };
 
-  // Toggle layout
-  const toggleLayout = () => {
-    setLayout(layout === "grid" ? "column" : "grid");
-  };
-
-  // Print functionality
   const handlePrint = () => {
     window.print();
   };
@@ -287,9 +262,6 @@ const StatblockLayoutApp = () => {
       <div className="flex justify-between items-center mb-4 print:hidden">
         <div className="flex items-center">
           <MonsterSelector />
-          <Button onClick={toggleLayout} variant="outline" className="mr-2">
-            Layout wechseln
-          </Button>
         </div>
         <Button onClick={handlePrint} variant="default">
           <Printer className="w-4 h-4 mr-2" />
@@ -297,22 +269,14 @@ const StatblockLayoutApp = () => {
         </Button>
       </div>
 
-      <div
-        className={`
-        grid gap-4 print:m-4
-        ${
-          layout === "grid"
-            ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 print:grid-cols-2 auto-rows-min"
-            : "grid-cols-1"
-        }
-      `}
-      >
+      <div className="columns-1 md:columns-2 lg:columns-3 print:columns-2 gap-4 space-y-4 [column-fill:_balance]">
         {statblocks.map((statblock, index) => (
-          <StatblockDisplay
-            key={index}
-            creature={statblock}
-            onRemove={() => removeStatblock(index)}
-          />
+          <div key={index} className="break-inside-avoid-page">
+            <StatblockDisplay
+              creature={statblock}
+              onRemove={() => removeStatblock(index)}
+            />
+          </div>
         ))}
       </div>
     </div>
