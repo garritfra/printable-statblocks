@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Printer, Search, X } from "lucide-react";
+import { HelpCircle, PlusCircle, Printer, Search, X } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -312,10 +312,16 @@ const StatblockLayoutApp = () => {
         <div className="flex items-center">
           <MonsterSelector />
         </div>
-        <Button onClick={handlePrint} variant="default">
-          <Printer className="w-4 h-4 mr-2" />
-          Drucken
-        </Button>
+        <div className="flex gap-4">
+          <Button onClick={handlePrint} variant="default">
+            <Printer className="w-4 h-4 mr-2" />
+            Drucken
+          </Button>
+          <Button onClick={() => setShowWelcome(true)} variant="secondary">
+            <HelpCircle className="w-4 h-4 mr-2" />
+            Hilfe
+          </Button>
+        </div>
       </div>
 
       <div className="columns-1 md:columns-2 lg:columns-3 print:columns-2 gap-4 space-y-4 [column-fill:_balance]">
