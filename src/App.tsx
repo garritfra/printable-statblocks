@@ -194,6 +194,8 @@ const StatblockLayoutApp = () => {
   const MonsterSelector = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [dialogSearchTerm, setDialogSearchTerm] = useState("");
+    const [selectedIndex, setSelectedIndex] = useState(0);
+    const listRef = useRef(null);
 
     const filteredMonsterList = monsters.filter((monster) =>
       monster.name.toLowerCase().includes(dialogSearchTerm.toLowerCase())
@@ -203,7 +205,53 @@ const StatblockLayoutApp = () => {
       await fetchMonsterData(monsterUrl);
       setIsOpen(false);
       setDialogSearchTerm("");
+      setSelectedIndex(0);
     };
+
+    const handleKeyDown = (e) => {
+      if (!isOpen) return;
+
+      switch (e.key) {
+        case "ArrowDown":
+          e.preventDefault();
+          setSelectedIndex((prev) =>
+            prev < filteredMonsterList.length - 1 ? prev + 1 : prev
+          );
+          break;
+        case "ArrowUp":
+          e.preventDefault();
+          setSelectedIndex((prev) => (prev > 0 ? prev - 1 : prev));
+          break;
+        case "Enter":
+          e.preventDefault();
+          if (filteredMonsterList[selectedIndex]) {
+            handleMonsterSelect(filteredMonsterList[selectedIndex].url);
+          }
+          break;
+      }
+    };
+
+    // Scroll selected item into view when using keyboard navigation
+    useEffect(() => {
+      if (listRef.current) {
+        const selectedElement = listRef.current.children[selectedIndex];
+        if (selectedElement) {
+          selectedElement.scrollIntoView({ block: "nearest" });
+        }
+      }
+    }, [selectedIndex]);
+
+    // Reset selected index when search term changes
+    useEffect(() => {
+      setSelectedIndex(0);
+    }, [dialogSearchTerm]);
+
+    // Reset selected index when dialog opens
+    useEffect(() => {
+      if (isOpen) {
+        setSelectedIndex(0);
+      }
+    }, [isOpen]);
 
     return (
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -213,7 +261,7 @@ const StatblockLayoutApp = () => {
             Monster hinzufügen
           </Button>
         </DialogTrigger>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md" onKeyDown={handleKeyDown}>
           <DialogHeader>
             <DialogTitle>Monster auswählen</DialogTitle>
           </DialogHeader>
@@ -233,12 +281,14 @@ const StatblockLayoutApp = () => {
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
-            <div className="max-h-96 overflow-y-auto space-y-1">
-              {filteredMonsterList.map((monster) => (
+            <div ref={listRef} className="max-h-96 overflow-y-auto space-y-1">
+              {filteredMonsterList.map((monster, index) => (
                 <Button
                   key={monster.url}
                   variant="ghost"
-                  className="w-full justify-start text-left"
+                  className={`w-full justify-start text-left ${
+                    index === selectedIndex ? "bg-accent" : ""
+                  }`}
                   onClick={() => handleMonsterSelect(monster.url)}
                   disabled={loading}
                 >
@@ -251,7 +301,6 @@ const StatblockLayoutApp = () => {
       </Dialog>
     );
   };
-
   const handlePrint = () => {
     window.print();
   };
