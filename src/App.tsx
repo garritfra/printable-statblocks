@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import WelcomeDialog from "@/components/WelcomeDialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import yaml from "js-yaml";
+import { useKeyboardShortcut } from "./hooks/useKeyboardShortcut";
 
 const STORAGE_KEY = "statblocks";
 
@@ -196,6 +197,11 @@ const StatblockLayoutApp = () => {
     const [dialogSearchTerm, setDialogSearchTerm] = useState("");
     const [selectedIndex, setSelectedIndex] = useState(0);
     const listRef = useRef(null);
+
+    useKeyboardShortcut({
+      key: "/",
+      onKeyPressed: () => setIsOpen(true),
+    });
 
     const filteredMonsterList = monsters.filter((monster) =>
       monster.name.toLowerCase().includes(dialogSearchTerm.toLowerCase())
