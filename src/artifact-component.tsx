@@ -10,6 +10,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import WelcomeDialog from "@/components/WelcomeDialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import yaml from "js-yaml";
 
@@ -19,6 +20,19 @@ const StatblockLayoutApp = () => {
   const [monsters, setMonsters] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [showWelcome, setShowWelcome] = useState(false);
+
+  useEffect(() => {
+    const hasSeenWelcome = localStorage.getItem("hasSeenWelcome");
+    if (!hasSeenWelcome) {
+      setShowWelcome(true);
+    }
+  }, []);
+
+  const handleWelcomeClose = () => {
+    localStorage.setItem("hasSeenWelcome", "true");
+    setShowWelcome(false);
+  };
 
   // Fetch monster list on component mount
   useEffect(() => {
@@ -250,6 +264,7 @@ const StatblockLayoutApp = () => {
 
   return (
     <div className="p-4">
+      <WelcomeDialog open={showWelcome} onOpenChange={handleWelcomeClose} />
       <div className="flex justify-between items-center mb-4 print:hidden">
         <div className="flex items-center">
           <MonsterSelector />
