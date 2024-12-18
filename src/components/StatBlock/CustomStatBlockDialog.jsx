@@ -60,6 +60,7 @@ const CustomStatBlockDialog = ({ onStatBlockAdd }) => {
           <Textarea
             placeholder="Fügen Sie hier Ihren YAML Statblock ein..."
             value={yamlContent}
+            rows={25}
             onChange={(e) => setYamlContent(e.target.value)}
             className="font-mono h-[400px]"
           />

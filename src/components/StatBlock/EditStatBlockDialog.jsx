@@ -44,7 +44,8 @@ const EditStatBlockDialog = ({ creature, onUpdate }) => {
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <Textarea
-            className="font-mono h-[60vh]"
+            className="font-mono h-96"
+            rows={25}
             value={yamlContent}
             onChange={(e) => setYamlContent(e.target.value)}
           />

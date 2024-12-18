@@ -211,6 +211,7 @@ const MonsterSelector = ({ onMonsterSelect }) => {
               <Textarea
                 placeholder="Fügen Sie hier Ihren YAML Statblock ein..."
                 value={yamlContent}
+                rows={20}
                 onChange={(e) => setYamlContent(e.target.value)}
                 className="font-mono h-[400px] w-full"
               />
