@@ -25,6 +25,7 @@ const MonsterSelector = ({ onMonsterSelect }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const listRef = useRef(null);
+  const inputRef = useRef(null);
   const { toast } = useToast();
 
   useKeyboardShortcut({
@@ -34,6 +35,7 @@ const MonsterSelector = ({ onMonsterSelect }) => {
 
   useEffect(() => {
     const fetchMonsters = async () => {
+      setLoading(true);
       try {
         const response = await fetch(
           "https://openrpg.de/srd/5e/de/api/monster"
@@ -56,11 +58,23 @@ const MonsterSelector = ({ onMonsterSelect }) => {
       } catch (error) {
         setError("Failed to fetch monster list");
         console.error("Error fetching monsters:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchMonsters();
   }, []);
+
+  useEffect(() => {
+    if (isOpen) {
+      setTimeout(() => {
+        if (inputRef.current) {
+          inputRef.current.focus();
+        }
+      }, 50); // TODO: Remove. Delay to ensure the dialog is rendered
+    }
+  }, [isOpen]);
 
   const filteredMonsterList = monsters.filter((monster) =>
     monster.name.toLowerCase().includes(dialogSearchTerm.toLowerCase())
@@ -168,6 +182,7 @@ const MonsterSelector = ({ onMonsterSelect }) => {
                   value={dialogSearchTerm}
                   onChange={(e) => setDialogSearchTerm(e.target.value)}
                   className="flex-1"
+                  ref={inputRef}
                 />
               </div>
               {error && (
