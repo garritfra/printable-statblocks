@@ -14,8 +14,10 @@ import WelcomeDialog from "@/components/WelcomeDialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import yaml from "js-yaml";
 import { useKeyboardShortcut } from "./hooks/useKeyboardShortcut";
+import CustomStatBlockDialog from "@/components/StatBlock/CustomStatBlockDialog"; // New import
 
 const STORAGE_KEY = "statblocks";
+const CUSTOM_STORAGE_KEY = "customStatBlocks"; // New constant
 
 const StatblockLayoutApp = () => {
   const [statblocks, setStatblocks] = useState(() => {
@@ -307,6 +309,13 @@ const StatblockLayoutApp = () => {
       </Dialog>
     );
   };
+  const handleCustomStatBlockAdd = (newStatBlock) => {
+    setStatblocks((prev) => {
+      const updatedStatblocks = [...prev, newStatBlock];
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedStatblocks));
+      return updatedStatblocks;
+    });
+  };
   const handlePrint = () => {
     window.print();
   };
@@ -315,8 +324,12 @@ const StatblockLayoutApp = () => {
     <div className="p-4">
       <WelcomeDialog open={showWelcome} onOpenChange={handleWelcomeClose} />
       <div className="flex justify-between items-center mb-4 print:hidden">
-        <div className="flex items-center">
+        <div className="flex items-center gap-2">
           <MonsterSelector />
+          <CustomStatBlockDialog
+            onStatBlockAdd={handleCustomStatBlockAdd}
+          />{" "}
+          {/* New button */}
         </div>
         <div className="flex gap-4">
           <Button onClick={handlePrint} variant="default">
