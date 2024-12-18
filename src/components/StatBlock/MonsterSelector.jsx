@@ -146,19 +146,22 @@ const MonsterSelector = ({ onMonsterSelect }) => {
           Monster hinzufügen
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-[725px]" onKeyDown={handleKeyDown}>
+      <DialogContent 
+        className="sm:max-w-[600px]" 
+        onKeyDown={handleKeyDown}
+      >
         <DialogHeader>
           <DialogTitle>Monster auswählen</DialogTitle>
         </DialogHeader>
-        <Tabs defaultValue="list">
-          <TabsList className="grid w-full grid-cols-2">
+        <Tabs defaultValue="list" className="w-full">
+          <TabsList className="w-full grid grid-cols-2 mb-4">
             <TabsTrigger value="list">Monsterliste</TabsTrigger>
             <TabsTrigger value="custom">Custom</TabsTrigger>
           </TabsList>
-          <TabsContent value="list" className="mt-4">
+          <TabsContent value="list">
             <div className="flex flex-col space-y-4">
               <div className="flex items-center space-x-2">
-                <Search className="w-4 h-4 text-gray-500" />
+                <Search className="w-4 h-4 text-gray-500 flex-shrink-0" />
                 <Input
                   type="text"
                   placeholder="Monster suchen..."
@@ -189,15 +192,17 @@ const MonsterSelector = ({ onMonsterSelect }) => {
               </div>
             </div>
           </TabsContent>
-          <TabsContent value="custom" className="mt-4">
-            <div className="grid gap-4">
+          <TabsContent value="custom">
+            <div className="space-y-4">
               <Textarea
                 placeholder="Fügen Sie hier Ihren YAML Statblock ein..."
                 value={yamlContent}
                 onChange={(e) => setYamlContent(e.target.value)}
-                className="font-mono h-[400px]"
+                className="font-mono h-[400px] w-full"
               />
-              <Button onClick={handleCustomStatBlock}>Hinzufügen</Button>
+              <div className="flex justify-end">
+                <Button onClick={handleCustomStatBlock}>Hinzufügen</Button>
+              </div>
             </div>
           </TabsContent>
         </Tabs>
