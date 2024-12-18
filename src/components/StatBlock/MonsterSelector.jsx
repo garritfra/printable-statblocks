@@ -154,9 +154,9 @@ const MonsterSelector = ({ onMonsterSelect }) => {
           <DialogTitle>Monster auswählen</DialogTitle>
         </DialogHeader>
         <Tabs defaultValue="list" className="w-full">
-          <TabsList className="w-full grid grid-cols-2 mb-4">
-            <TabsTrigger value="list">Monsterliste</TabsTrigger>
-            <TabsTrigger value="custom">Custom</TabsTrigger>
+          <TabsList className="w-full flex space-x-1 mb-4">
+            <TabsTrigger value="list" className="flex-1">Monsterliste</TabsTrigger>
+            <TabsTrigger value="custom" className="flex-1">Custom</TabsTrigger>
           </TabsList>
           <TabsContent value="list">
             <div className="flex flex-col space-y-4">
