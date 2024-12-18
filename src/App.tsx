@@ -5,6 +5,7 @@ import { HelpCircle, Printer, X } from "lucide-react";
 import WelcomeDialog from "@/components/WelcomeDialog";
 import MonsterSelector from "@/components/StatBlock/MonsterSelector";
 import yaml from "js-yaml";
+import EditStatBlockDialog from "@/components/StatBlock/EditStatBlockDialog";
 
 const STANDARD_STORAGE_KEY = "standardStatblocks";
 const CUSTOM_STORAGE_KEY = "customStatBlocks";
@@ -101,7 +102,20 @@ const StatblockLayoutApp = () => {
     }
   };
 
-  const StatblockDisplay = ({ creature, onRemove }) => {
+  const handleStatBlockEdit = (index, updatedCreature) => {
+    if (index < standardStatblocks.length) {
+      setStandardStatblocks((prev) =>
+        prev.map((block, i) => (i === index ? updatedCreature : block))
+      );
+    } else {
+      const customIndex = index - standardStatblocks.length;
+      setCustomStatblocks((prev) =>
+        prev.map((block, i) => (i === customIndex ? updatedCreature : block))
+      );
+    }
+  };
+
+  const StatblockDisplay = ({ creature, onRemove, index }) => {
     const getModifier = (stat) => {
       const mod = Math.floor((stat - 10) / 2);
       return mod >= 0 ? `+${mod}` : mod.toString();
@@ -117,14 +131,17 @@ const StatblockLayoutApp = () => {
 
     return (
       <Card className="bg-stone-100 p-2 relative break-inside-avoid print:break-inside-avoid">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="absolute top-1 right-1 print:hidden"
-          onClick={onRemove}
-        >
-          <X className="h-3 w-3" />
-        </Button>
+        <div className="absolute top-1 right-1 flex space-x-1 print:hidden">
+          <EditStatBlockDialog
+            creature={creature}
+            onUpdate={(updatedCreature) =>
+              handleStatBlockEdit(index, updatedCreature)
+            }
+          />
+          <Button variant="ghost" size="icon" onClick={onRemove}>
+            <X className="h-3 w-3" />
+          </Button>
+        </div>
         <CardContent className="p-0">
           <h2 className="text-base font-bold mb-1">{creature.name}</h2>
           <p className="text-xs italic mb-1">
@@ -214,6 +231,7 @@ const StatblockLayoutApp = () => {
             <StatblockDisplay
               creature={statblock}
               onRemove={() => removeStatblock(index)}
+              index={index}
             />
           </div>
         ))}

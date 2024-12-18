@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import yaml from "js-yaml";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Search } from "lucide-react";
+import { PlusCircle } from "lucide-react";
 import {
   Dialog,
   DialogContent,
