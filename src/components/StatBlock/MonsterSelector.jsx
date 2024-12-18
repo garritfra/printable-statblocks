@@ -175,7 +175,6 @@ const MonsterSelector = ({ onMonsterSelect }) => {
           <TabsContent value="list">
             <div className="flex flex-col space-y-4">
               <div className="flex items-center space-x-2">
-                <Search className="w-4 h-4 text-gray-500 flex-shrink-0" />
                 <Input
                   type="text"
                   placeholder="Monster suchen..."
