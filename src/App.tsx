@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { HelpCircle, Printer, X } from "lucide-react";
+import { Bug, HelpCircle, Printer, X } from "lucide-react";
 import WelcomeDialog from "@/components/WelcomeDialog";
 import MonsterSelector from "@/components/StatBlock/MonsterSelector";
 import yaml from "js-yaml";
@@ -222,6 +222,16 @@ const StatblockLayoutApp = () => {
             <HelpCircle className="w-4 h-4 mr-2" />
             Hilfe
           </Button>
+          <a
+            href="https://github.com/garritfra/printable-statblocks/issues"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Button variant="outline">
+              <Bug className="w-4 h-4 mr-2" />
+              Problem melden
+            </Button>
+          </a>
         </div>
       </div>
 

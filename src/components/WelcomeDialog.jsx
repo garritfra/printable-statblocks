@@ -17,18 +17,17 @@ const WelcomeDialog = ({ open, onOpenChange }) => {
           <div>
             <h3 className="mb-2 font-semibold">Mit dieser App kannst du:</h3>
             <ul className="space-y-2 list-disc pl-6">
-              <li>Monster aus dem deutschen SRD hinzufügen und anzeigen</li>
-              <li>Alle Statblöcke drucken</li>
+              <li>Monster aus dem deutschen OpenRPG SRD durchsuchen und hinzufügen</li>
+              <li>Die Ansicht druckerfreundlich formatieren und ausdrucken</li>
+              <li>Monster anpassen und eigene Monster erstellen</li>
             </ul>
           </div>
           <div>
             <h3 className="mb-2 font-semibold">Erste Schritte:</h3>
             <ol className="space-y-2 list-decimal pl-6">
-              <li>Klicken Sie auf "Monster hinzufügen"</li>
-              <li>
-                Wählen Sie ein Monster aus der Liste oder nutzen Sie die Suche
-              </li>
-              <li>Passen Sie das Layout mit "Layout wechseln" an</li>
+              <li>Klicken Sie auf "Monster hinzufügen" oder nutzen Sie die Tastenkombination</li>
+              <li>Durchsuchen Sie die Monster-Datenbank mit der Suchfunktion</li>
+              <li>Wählen Sie ein oder mehrere Monster aus</li>
               <li>Drucken Sie die Ansicht mit dem Drucken-Button</li>
             </ol>
           </div>
@@ -38,11 +37,14 @@ const WelcomeDialog = ({ open, onOpenChange }) => {
               <li>
                 <kbd className="kbd">/</kbd> = Monster-Auswahl öffnen
               </li>
+              <li>
+                <kbd className="kbd">Esc</kbd> = Dialog schließen
+              </li>
             </ul>
           </div>
         </div>
-        <p className="text-muted-foreground">
-          Diese Nachricht wird nur einmal angezeigt.
+        <p className="text-muted-foreground text-xs">
+          Diese Nachricht wird nur beim ersten Besuch angezeigt. Das Tool verwendet die OpenRPG DE API für Monsterdaten.
         </p>
       </DialogContent>
     </Dialog>
