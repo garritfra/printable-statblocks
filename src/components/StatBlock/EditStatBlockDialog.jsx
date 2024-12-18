@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Pencil } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import yaml from 'js-yaml';
+import { FormatNotice } from '../FormatNotice';
 
 const EditStatBlockDialog = ({ creature, onUpdate }) => {
   const [yamlContent, setYamlContent] = useState(yaml.dump(creature));
@@ -43,6 +44,7 @@ const EditStatBlockDialog = ({ creature, onUpdate }) => {
           <DialogTitle>Edit Statblock: {creature.name}</DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
+          <FormatNotice />
           <Textarea
             className="font-mono h-96"
             rows={25}

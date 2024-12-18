@@ -15,6 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { useKeyboardShortcut } from "@/hooks/useKeyboardShortcut";
+import { FormatNotice } from "@/components/FormatNotice";
 
 const MonsterSelector = ({ onMonsterSelect }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -208,6 +209,7 @@ const MonsterSelector = ({ onMonsterSelect }) => {
           </TabsContent>
           <TabsContent value="custom">
             <div className="space-y-4">
+              <FormatNotice />
               <Textarea
                 placeholder="Fügen Sie hier Ihren YAML Statblock ein..."
                 value={yamlContent}
