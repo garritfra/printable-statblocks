@@ -210,7 +210,7 @@ const StatblockLayoutApp = () => {
     <div className="p-2 sm:p-4">
       <WelcomeDialog open={showWelcome} onOpenChange={handleWelcomeClose} />
 
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4 print:hidden">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4 print:hidden">
         <div className="w-full sm:w-auto">
           <MonsterSelector onMonsterSelect={handleMonsterSelect} />
         </div>
