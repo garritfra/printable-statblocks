@@ -207,27 +207,40 @@ const StatblockLayoutApp = () => {
   };
 
   return (
-    <div className="p-4">
+    <div className="p-2 sm:p-4">
       <WelcomeDialog open={showWelcome} onOpenChange={handleWelcomeClose} />
-      <div className="flex justify-between items-center mb-4 print:hidden">
-        <div className="flex items-center">
+
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4 print:hidden">
+        <div className="w-full sm:w-auto">
           <MonsterSelector onMonsterSelect={handleMonsterSelect} />
         </div>
-        <div className="flex gap-4">
-          <Button onClick={handlePrint} variant="default">
+
+        <div className="flex flex-wrap items-center gap-2 sm:gap-4 w-full sm:w-auto">
+          <Button
+            onClick={handlePrint}
+            variant="default"
+            className="flex-grow sm:flex-grow-0"
+          >
             <Printer className="w-4 h-4 mr-2" />
             Drucken
           </Button>
-          <Button onClick={() => setShowWelcome(true)} variant="secondary">
+
+          <Button
+            onClick={() => setShowWelcome(true)}
+            variant="secondary"
+            className="flex-grow sm:flex-grow-0"
+          >
             <HelpCircle className="w-4 h-4 mr-2" />
             Hilfe
           </Button>
+
           <a
             href="https://github.com/garritfra/printable-statblocks/issues"
             target="_blank"
             rel="noopener noreferrer"
+            className="flex-grow sm:flex-grow-0"
           >
-            <Button variant="outline">
+            <Button variant="outline" className="w-full">
               <Bug className="w-4 h-4 mr-2" />
               Problem melden
             </Button>
@@ -235,7 +248,7 @@ const StatblockLayoutApp = () => {
         </div>
       </div>
 
-      <div className="columns-1 md:columns-2 lg:columns-3 print:columns-2 gap-4 space-y-4 [column-fill:_balance]">
+      <div className="columns-1 md:columns-2 lg:columns-3 print:columns-2 gap-2 sm:gap-4 space-y-2 sm:space-y-4 [column-fill:_balance]">
         {statblocks.map((statblock, index) => (
           <div key={index} className="break-inside-avoid-page">
             <StatblockDisplay

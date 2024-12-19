@@ -156,7 +156,7 @@ const MonsterSelector = ({ onMonsterSelect }) => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button className="mr-2">
+        <Button className="mr-2 w-full">
           <PlusCircle className="w-4 h-4 mr-2" />
           Monster hinzufügen
         </Button>
