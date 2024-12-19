@@ -5,6 +5,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Button } from "./ui/button";
+import { Bug } from "lucide-react";
 
 const WelcomeDialog = ({ open, onOpenChange }) => {
   return (
@@ -43,6 +45,18 @@ const WelcomeDialog = ({ open, onOpenChange }) => {
             </ul>
           </div>
         </div>
+        <a
+          href="https://github.com/garritfra/printable-statblocks/issues"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex-grow sm:flex-grow-0"
+        >
+          <Button variant="outline" className="w-full">
+            <Bug className="w-4 h-4 mr-2" />
+            Problem melden
+          </Button>
+        </a>
+        <Button onClick={onOpenChange}>Schließen</Button>
         <p className="text-muted-foreground text-xs">
           Diese Nachricht wird nur beim ersten Besuch angezeigt. Das Tool verwendet die OpenRPG DE API für Monsterdaten.
         </p>

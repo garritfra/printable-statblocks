@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Bug, HelpCircle, Printer, X } from "lucide-react";
+import { HelpCircle, Printer, X } from "lucide-react";
 import WelcomeDialog from "@/components/WelcomeDialog";
 import MonsterSelector from "@/components/StatBlock/MonsterSelector";
 import yaml from "js-yaml";
@@ -11,7 +11,6 @@ const STANDARD_STORAGE_KEY = "standardStatblocks";
 const CUSTOM_STORAGE_KEY = "customStatBlocks";
 
 const StatblockLayoutApp = () => {
-  // Separate state for standard and custom statblocks
   const [standardStatblocks, setStandardStatblocks] = useState(() => {
     const saved = localStorage.getItem(STANDARD_STORAGE_KEY);
     return saved ? JSON.parse(saved) : [];
@@ -22,11 +21,7 @@ const StatblockLayoutApp = () => {
     return saved ? JSON.parse(saved) : [];
   });
 
-  // Combined statblocks for display
   const statblocks = [...standardStatblocks, ...customStatblocks];
-
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const [showWelcome, setShowWelcome] = useState(false);
 
   // Save standard statblocks
@@ -54,7 +49,7 @@ const StatblockLayoutApp = () => {
     setShowWelcome(false);
   };
 
-  const parseStatblock = (yamlContent) => {
+  const parseStatblock = (yamlContent: string) => {
     try {
       const match = yamlContent.match(/```statblock\n([\s\S]*?)```/);
       if (!match) {
@@ -68,28 +63,27 @@ const StatblockLayoutApp = () => {
     }
   };
 
-  const handleMonsterSelect = async (monsterUrl, customStatBlock = null) => {
+  const handleMonsterSelect = async (
+    monsterUrl: string,
+    customStatBlock = null
+  ) => {
     if (customStatBlock) {
       // Handle custom statblock
-      setCustomStatblocks((prev) => [...prev, customStatBlock]);
+      setCustomStatblocks((prev: unknown[]) => [...prev, customStatBlock]);
       return;
     }
 
     // Handle standard monster
-    setLoading(true);
-    setError(null);
     try {
       const response = await fetch(monsterUrl);
       const textData = await response.text();
       const data = parseStatblock(textData);
       if (data) {
-        setStandardStatblocks((prev) => [...prev, data]);
+        setStandardStatblocks((prev: string[]) => [...prev, data]);
       }
     } catch (error) {
-      setError("Failed to fetch monster data");
       console.error("Error fetching monster data:", error);
     }
-    setLoading(false);
   };
 
   const removeStatblock = (index) => {
@@ -218,7 +212,7 @@ const StatblockLayoutApp = () => {
         <div className="flex flex-wrap items-center gap-2 sm:gap-4 w-full sm:w-auto">
           <Button
             onClick={handlePrint}
-            variant="default"
+            variant="secondary"
             className="flex-grow sm:flex-grow-0"
           >
             <Printer className="w-4 h-4 mr-2" />
@@ -227,24 +221,12 @@ const StatblockLayoutApp = () => {
 
           <Button
             onClick={() => setShowWelcome(true)}
-            variant="secondary"
+            variant="ghost"
             className="flex-grow sm:flex-grow-0"
           >
             <HelpCircle className="w-4 h-4 mr-2" />
             Hilfe
           </Button>
-
-          <a
-            href="https://github.com/garritfra/printable-statblocks/issues"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex-grow sm:flex-grow-0"
-          >
-            <Button variant="outline" className="w-full">
-              <Bug className="w-4 h-4 mr-2" />
-              Problem melden
-            </Button>
-          </a>
         </div>
       </div>
 
