@@ -123,6 +123,39 @@ const StatblockLayoutApp = () => {
       })
     );
 
+    // Function to format specific patterns in the text
+    const formatText = (text) => {
+      if (!text) return text;
+
+      // Replace patterns for attack modifiers like "+9 auf Treffer"
+      text = text.replace(
+        /([+-]\d+) auf Treffer/g,
+        "<strong>$1 auf Treffer</strong>"
+      );
+
+      // Replace patterns for damage rolls like "Treffer: 14 (3W6+4)"
+      text = text.replace(
+        /(\d+ \(\d+W\d+(?:[+-]\d+)?\) \w+schaden)/g,
+        "<strong>$1</strong>"
+      );
+
+      // Replace patterns for saving throws like "SG-16-Weisheitsrettungswurf"
+      text = text.replace(
+        /(SG-\d+)-(\w+rettungswurf)/g,
+        "<strong>$1-$2</strong>"
+      );
+
+      // Additional common patterns
+      text = text.replace(
+        /([+-]\d+) zu treffen/g,
+        "<strong>$1 zu treffen</strong>"
+      );
+      text = text.replace(/(DC \d+)/gi, "<strong>$1</strong>");
+      text = text.replace(/(\d+d\d+[+-]\d+)/g, "<strong>$1</strong>");
+
+      return text;
+    };
+
     return (
       <Card className="bg-stone-100 p-2 relative break-inside-avoid print:break-inside-avoid">
         <div className="absolute top-1 right-1 flex space-x-1 print:hidden">
@@ -186,7 +219,12 @@ const StatblockLayoutApp = () => {
               {creature.actions.map((action, index) => (
                 <div key={index} className="mb-1 text-xs">
                   <p className="font-bold">{action.name}</p>
-                  <p className="whitespace-pre-wrap">{action.desc}</p>
+                  <p
+                    className="whitespace-pre-wrap"
+                    dangerouslySetInnerHTML={{
+                      __html: formatText(action.desc),
+                    }}
+                  />
                 </div>
               ))}
             </div>
