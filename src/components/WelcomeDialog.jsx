@@ -58,7 +58,7 @@ const WelcomeDialog = ({ open, onOpenChange }) => {
         </a>
         <Button onClick={onOpenChange}>Schließen</Button>
         <p className="text-muted-foreground text-xs">
-          Diese Nachricht wird nur beim ersten Besuch angezeigt. Das Tool verwendet die OpenRPG DE API für Monsterdaten.
+          Diese Nachricht kann über das Hilfemenü aufgerufen werden. Das Tool verwendet die <a className="underline underline-offset-4" href="https://openrpg.de/srd/5e/de/api/">OpenRPG DE API</a> für Monsterdaten.
         </p>
       </DialogContent>
     </Dialog>
