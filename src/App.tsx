@@ -190,14 +190,46 @@ const StatblockLayoutApp = () => {
           <div className="grid grid-cols-6 gap-1 text-center my-1">
             {attributes.map((attr) => (
               <div key={attr.class} className="text-xs">
-                <div className="text-2xs uppercase">{attr.class}</div>
-                <div className="font-bold">{attr.value}</div>
-                <div>{attr.modifier}</div>
+                <div className="text-2xs uppercase font-bold">{attr.class}</div>
+                <div>
+                  {attr.value} (<span>{attr.modifier}</span>)
+                </div>
               </div>
             ))}
           </div>
 
           <div className="my-1 space-y-0.5 text-xs">
+            {creature.damage_vulnerabilities && (
+              <p>
+                <strong>Verwundbarkeiten</strong>{" "}
+                {creature.damage_vulnerabilities}
+              </p>
+            )}
+            {creature.damage_immunities && (
+              <p>
+                <strong>Immunitäten</strong> {creature.damage_immunities}
+              </p>
+            )}
+            {creature.condition_immunities && (
+              <p>
+                <strong>Zustandsimmunitäten</strong>{" "}
+                {creature.condition_immunities}
+              </p>
+            )}
+            {creature.skillsaves &&
+              Object.entries(creature.skillsaves).length > 0 && (
+                <p>
+                  <strong>Fertigkeiten</strong>{" "}
+                  {Object.entries(creature.skillsaves)
+                    .map(([_, skillObj]) =>
+                      Object.entries(skillObj).map(
+                        ([skill, value]) =>
+                          `${skill} ${value >= 0 ? "+" : ""}${value}`
+                      )
+                    )
+                    .join(", ")}
+                </p>
+              )}
             {creature.senses && (
               <p>
                 <strong>Sinne</strong> {creature.senses}
@@ -213,10 +245,65 @@ const StatblockLayoutApp = () => {
             </p>
           </div>
 
+          {creature.spells && (
+            <div className="border-t border-gray-300 pt-1 my-1">
+              <h3 className="font-bold text-xs mb-1">Zauberwirken</h3>
+              {creature.spells.map((spell, index) => {
+                if (typeof spell === "object") {
+                  return (
+                    <div key={index} className="mb-1 text-xs">
+                      <span className="font-bold">
+                        {Object.keys(spell)[0]}:{" "}
+                      </span>
+                      <span className="whitespace-pre-wrap">
+                        {Object.values(spell)[0]}
+                      </span>
+                    </div>
+                  );
+                } else {
+                  return (
+                    <p key={index} className="text-xs whitespace-pre-wrap">
+                      {spell.toString()}
+                    </p>
+                  );
+                }
+              })}
+            </div>
+          )}
+
+          {creature.traits && (
+            <div className="border-t border-gray-300 pt-1 my-1">
+              <h3 className="font-bold text-xs mb-1">Eigenschaften</h3>
+              {creature.traits.map((trait, index) => (
+                <div key={index} className="mb-1 text-xs">
+                  <p className="font-bold">{trait.name}</p>
+                  <p className="whitespace-pre-wrap">{trait.desc}</p>
+                </div>
+              ))}
+            </div>
+          )}
+
           {creature.actions && (
             <div className="border-t border-gray-300 pt-1">
               <h3 className="font-bold text-xs mb-1">Aktionen</h3>
               {creature.actions.map((action, index) => (
+                <div key={index} className="mb-1 text-xs">
+                  <p className="font-bold">{action.name}</p>
+                  <p
+                    className="whitespace-pre-wrap"
+                    dangerouslySetInnerHTML={{
+                      __html: formatText(action.desc),
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+
+          {creature.legendary_actions && (
+            <div className="border-t border-gray-300 pt-1">
+              <h3 className="font-bold text-xs mb-1">Legendäre Aktionen</h3>
+              {creature.legendary_actions.map((action, index) => (
                 <div key={index} className="mb-1 text-xs">
                   <p className="font-bold">{action.name}</p>
                   <p
