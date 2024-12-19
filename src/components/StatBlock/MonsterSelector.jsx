@@ -10,10 +10,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/components/ui/use-toast";
 import { useKeyboardShortcut } from "@/hooks/useKeyboardShortcut";
 import { FormatNotice } from "@/components/FormatNotice";
 
@@ -27,7 +25,6 @@ const MonsterSelector = ({ onMonsterSelect }) => {
   const [error, setError] = useState(null);
   const listRef = useRef(null);
   const inputRef = useRef(null);
-  const { toast } = useToast();
 
   useKeyboardShortcut({
     key: "/",
@@ -91,23 +88,16 @@ const MonsterSelector = ({ onMonsterSelect }) => {
   const handleCustomStatBlock = () => {
     try {
       const cleanedContent = yamlContent
-        .replace(/```statblock\n/, "")
-        .replace(/```\n?$/, "");
-
-      const parsed = yaml.load(cleanedContent);
-      onMonsterSelect(null, parsed); // Pass the parsed YAML directly
+      .replace(/```statblock\n/, "")
+      .replace(/```\n?$/, "");
+     
+      // Test parse the YAML to ensure it's valid
+      yaml.load(cleanedContent);
+      onMonsterSelect(null, cleanedContent);
       setYamlContent("");
       setIsOpen(false);
-      toast({
-        title: "Statblock hinzugefügt",
-        description: `${parsed.name} wurde erfolgreich hinzugefügt.`,
-      });
     } catch (error) {
-      toast({
-        title: "Fehler",
-        description: "Ungültiges YAML Format. Bitte überprüfen Sie die Eingabe.",
-        variant: "destructive",
-      });
+      setError('Invalid YAML format: ' + error.message);
     }
   };
 
@@ -185,11 +175,6 @@ const MonsterSelector = ({ onMonsterSelect }) => {
                   ref={inputRef}
                 />
               </div>
-              {error && (
-                <Alert variant="destructive">
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              )}
               <div ref={listRef} className="max-h-96 overflow-y-auto space-y-1">
                 {filteredMonsterList.map((monster, index) => (
                   <Button
@@ -217,6 +202,13 @@ const MonsterSelector = ({ onMonsterSelect }) => {
                 onChange={(e) => setYamlContent(e.target.value)}
                 className="font-mono h-[400px] w-full"
               />
+              {error && (
+                <Textarea 
+                  className="font-mono"
+                  value={error}
+                  readOnly
+                />
+              )}
               <div className="flex justify-end">
                 <Button onClick={handleCustomStatBlock}>Hinzufügen</Button>
               </div>

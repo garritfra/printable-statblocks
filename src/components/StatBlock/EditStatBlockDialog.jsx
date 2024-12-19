@@ -54,7 +54,13 @@ const EditStatBlockDialog = ({ originalYaml, parsedCreature, onUpdate }) => {
             value={yamlContent}
             onChange={(e) => setYamlContent(e.target.value)}
           />
-          {error && <p className="text-red-500 text-sm">{error}</p>}
+          {error && (
+            <Textarea 
+              className="font-mono"
+              value={error}
+              readOnly
+            />
+          )}
           <Button onClick={handleUpdate}>Update Statblock</Button>
         </div>
       </DialogContent>
