@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import EditStatBlockDialog from "@/components/StatBlock/EditStatBlockDialog";
 
-const StatblockDisplay = ({ creature, originalYaml, onRemove, onEdit, index }) => {
+const StatblockDisplay = ({ creature, onRemove, onEdit, index }) => {
   const getModifier = (stat) => {
     const mod = Math.floor((stat - 10) / 2);
     return mod >= 0 ? `+${mod}` : mod.toString();
@@ -51,17 +51,12 @@ const StatblockDisplay = ({ creature, originalYaml, onRemove, onEdit, index }) =
     return text;
   };
 
-  if (!creature) {
-    return null;
-  }
-
   return (
     <Card className="bg-stone-100 p-2 relative break-inside-avoid print:break-inside-avoid">
       <div className="absolute top-1 right-1 flex space-x-1 print:hidden">
         <EditStatBlockDialog
-          originalYaml={originalYaml}
-          parsedCreature={creature}
-          onUpdate={(updatedYaml) => onEdit(index, updatedYaml)}
+          creature={creature}
+          onUpdate={(updatedCreature) => onEdit(index, updatedCreature)}
         />
         <Button variant="ghost" size="icon" onClick={onRemove}>
           <X className="h-3 w-3" />
@@ -116,7 +111,7 @@ const StatblockDisplay = ({ creature, originalYaml, onRemove, onEdit, index }) =
             <p>
               <strong>Fertigkeiten</strong>{" "}
               {Object.entries(creature.skillsaves)
-                .map(([, skillObj]) =>
+                .map(([_, skillObj]) =>
                   Object.entries(skillObj).map(
                     ([skill, value]) => `${skill} ${value >= 0 ? "+" : ""}${value}`
                   )

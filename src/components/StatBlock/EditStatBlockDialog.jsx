@@ -12,18 +12,15 @@ import { Textarea } from "@/components/ui/textarea";
 import yaml from 'js-yaml';
 import { FormatNotice } from '../FormatNotice';
 
-const EditStatBlockDialog = ({ originalYaml, parsedCreature, onUpdate }) => {
-  const [yamlContent, setYamlContent] = useState(originalYaml);
+const EditStatBlockDialog = ({ creature, onUpdate }) => {
+  const [yamlContent, setYamlContent] = useState(yaml.dump(creature));
   const [error, setError] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
 
   const handleUpdate = () => {
     try {
-      // Verify the YAML is valid by attempting to parse it
-      yaml.load(yamlContent);
-      
-      // If parsing succeeds, pass the raw YAML string to the update handler
-      onUpdate(yamlContent);
+      const updatedCreature = yaml.load(yamlContent);
+      onUpdate(updatedCreature);
       setError(null);
       setIsOpen(false);
     } catch (e) {
@@ -44,7 +41,7 @@ const EditStatBlockDialog = ({ originalYaml, parsedCreature, onUpdate }) => {
       </DialogTrigger>
       <DialogContent className="w-full sm:max-w-[725px]">
         <DialogHeader>
-          <DialogTitle>Edit Statblock: {parsedCreature.name}</DialogTitle>
+          <DialogTitle>Edit Statblock: {creature.name}</DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <FormatNotice />

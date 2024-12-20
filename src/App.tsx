@@ -6,8 +6,8 @@ import MonsterSelector from "@/components/StatBlock/MonsterSelector";
 import yaml from "js-yaml";
 import StatBlockDisplay from "@/components/StatBlock/StatBlockDisplay";
 
-const STANDARD_STORAGE_KEY = "standardStatblocksYaml";
-const CUSTOM_STORAGE_KEY = "customStatBlocksYaml";
+const STANDARD_STORAGE_KEY = "standardStatblocks";
+const CUSTOM_STORAGE_KEY = "customStatBlocks";
 
 const StatblockLayoutApp = () => {
   const [standardStatblocks, setStandardStatblocks] = useState(() => {
@@ -20,6 +20,7 @@ const StatblockLayoutApp = () => {
     return saved ? JSON.parse(saved) : [];
   });
 
+  const statblocks = [...standardStatblocks, ...customStatblocks];
   const [showWelcome, setShowWelcome] = useState(false);
 
   // Save standard statblocks
@@ -47,12 +48,18 @@ const StatblockLayoutApp = () => {
     setShowWelcome(false);
   };
 
-  const extractYamlContent = (content: string) => {
-    const match = content.match(/```statblock\n([\s\S]*?)```/);
-    if (!match) {
-      throw new Error("Could not find statblock content");
+  const parseStatblock = (yamlContent: string) => {
+    try {
+      const match = yamlContent.match(/```statblock\n([\s\S]*?)```/);
+      if (!match) {
+        throw new Error("Could not find statblock content");
+      }
+      const cleanYaml = match[1].trim();
+      return yaml.load(cleanYaml);
+    } catch (error) {
+      console.error("Error parsing YAML:", error);
+      return null;
     }
-    return match[1].trim();
   };
 
   const handleMonsterSelect = async (
@@ -60,18 +67,18 @@ const StatblockLayoutApp = () => {
     customStatBlock = null
   ) => {
     if (customStatBlock) {
-      // For custom statblocks, store the YAML directly
-      setCustomStatblocks((prev: string[]) => [...prev, customStatBlock]);
+      // Handle custom statblock
+      setCustomStatblocks((prev: unknown[]) => [...prev, customStatBlock]);
       return;
     }
 
-    // For standard monsters, fetch and store the YAML
+    // Handle standard monster
     try {
       const response = await fetch(monsterUrl);
       const textData = await response.text();
-      const yamlContent = extractYamlContent(textData);
-      if (yamlContent) {
-        setStandardStatblocks((prev: string[]) => [...prev, yamlContent]);
+      const data = parseStatblock(textData);
+      if (data) {
+        setStandardStatblocks((prev: string[]) => [...prev, data]);
       }
     } catch (error) {
       console.error("Error fetching monster data:", error);
@@ -79,6 +86,7 @@ const StatblockLayoutApp = () => {
   };
 
   const removeStatblock = (index) => {
+    // Determine if we're removing from standard or custom statblocks
     if (index < standardStatblocks.length) {
       setStandardStatblocks((prev) => prev.filter((_, i) => i !== index));
     } else {
@@ -87,34 +95,17 @@ const StatblockLayoutApp = () => {
     }
   };
 
-  const handleStatBlockEdit = (index, updatedYaml) => {
+  const handleStatBlockEdit = (index, updatedCreature) => {
     if (index < standardStatblocks.length) {
       setStandardStatblocks((prev) =>
-        prev.map((block, i) => (i === index ? updatedYaml : block))
+        prev.map((block, i) => (i === index ? updatedCreature : block))
       );
     } else {
       const customIndex = index - standardStatblocks.length;
       setCustomStatblocks((prev) =>
-        prev.map((block, i) => (i === customIndex ? updatedYaml : block))
+        prev.map((block, i) => (i === customIndex ? updatedCreature : block))
       );
     }
-  };
-
-  // Combine and parse YAML only when needed for rendering
-  const parseStatblock = (yamlContent) => {
-    try {
-      return yaml.load(yamlContent);
-    } catch (error) {
-      console.error("Error parsing YAML:", error);
-      return null;
-    }
-  };
-
-  const getAllStatblocks = () => {
-    return [...standardStatblocks, ...customStatblocks].map((yamlContent) => ({
-      yaml: yamlContent,
-      parsed: parseStatblock(yamlContent),
-    }));
   };
 
   return (
@@ -148,11 +139,10 @@ const StatblockLayoutApp = () => {
       </div>
 
       <div className="columns-1 md:columns-2 lg:columns-3 print:columns-2 gap-2 sm:gap-4 space-y-2 sm:space-y-4 [column-fill:_balance]">
-        {getAllStatblocks().map(({ yaml, parsed }, index) => (
+        {statblocks.map((statblock, index) => (
           <div key={index} className="break-inside-avoid-page">
             <StatBlockDisplay
-              creature={parsed}
-              originalYaml={yaml}
+              creature={statblock}
               onRemove={() => removeStatblock(index)}
               onEdit={handleStatBlockEdit}
               index={index}
