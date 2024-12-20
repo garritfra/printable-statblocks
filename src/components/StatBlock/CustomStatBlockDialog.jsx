@@ -9,10 +9,12 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/components/ui/use-toast";
 
 const CustomStatBlockDialog = ({ onStatBlockAdd }) => {
   const [yamlContent, setYamlContent] = useState("");
-  const [error, setError] = useState(null);
+  const { toast } = useToast();
+
   const handleSubmit = () => {
     try {
       // Remove ```statblock and ``` wrapper if present
@@ -32,8 +34,16 @@ const CustomStatBlockDialog = ({ onStatBlockAdd }) => {
       
       // Clear input and show success message
       setYamlContent("");
+      toast({
+        title: "Statblock hinzugefügt",
+        description: `${parsed.name} wurde erfolgreich hinzugefügt.`,
+      });
     } catch (error) {
-      setError('Invalid YAML format: ' + error.message);
+      toast({
+        title: "Fehler",
+        description: "Ungültiges YAML Format. Bitte überprüfen Sie die Eingabe.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -54,13 +64,6 @@ const CustomStatBlockDialog = ({ onStatBlockAdd }) => {
             onChange={(e) => setYamlContent(e.target.value)}
             className="font-mono h-[400px]"
           />
-          {error && (
-            <Textarea 
-              className="font-mono"
-              value={error}
-              readOnly
-            />
-          )}
           <Button onClick={handleSubmit}>Hinzufügen</Button>
         </div>
       </DialogContent>
